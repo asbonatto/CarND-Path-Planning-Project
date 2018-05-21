@@ -36,7 +36,7 @@ public:
 
 	// Trajectory generation parameters
 	double dt = 20./1000.; // planner clock ...
-	int NPTS = 10;
+	int NPTS = 50;
 	vector<double> path_s;
 	vector<double> path_d;
 	vector<double> path_x;
@@ -53,5 +53,8 @@ public:
 	void update_telemetry(double x, double y, double s, double d, double yaw, double speed, int unused_pts);
 	void generate_trajectory(int unused_pts);
 	void scan_road(vector<vector<double> > const &sensor_fusion, bool is_debug = false);
+
+	int get_faster_lane(){return std::distance(lane_speeds.begin(), std::max_element(lane_speeds.begin(), lane_speeds.end()));}
+
 
 };

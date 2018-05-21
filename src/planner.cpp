@@ -56,7 +56,7 @@ void Planner::generate_trajectory(int unused_pts){
   traj_s.fit(initial_s, {0, MAX_SPEED, 0}, 2.0, true);
   JMT traj_d = JMT();
 
-  traj_d.fit(initial_d, {csys->get_lane_center(2) , 0, 0}, 2.0, false);
+  traj_d.fit(initial_d, {csys->get_lane_center(get_faster_lane()) , 0, 0}, 2.0, false);
 
   for(int i = unused_pts; i < NPTS; i++)
   {// Lane keeper
