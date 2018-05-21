@@ -30,16 +30,15 @@ void Planner::update_telemetry(double x, double y, double s, double d, double ya
   theta = csys->get_normal(x, y);
   grd_vd = vx * cos(theta) + vy * sin(theta);
 
-  if (last_s.size() == 0){
-    initial_s = {grd_s, grd_vs, 0};
-    initial_d = {grd_d, grd_vd, 0};
+  if (last_s.size() == 0)
+  {
+    // Initialization with telemtry
+    last_s = {grd_s, grd_vs, 0};
+    last_d = {grd_d, grd_vd, 0};
     target_lane = current_lane;
   }
-  else{
-    initial_s = last_s;
-    initial_d = last_d;
-  }
-
+  initial_s = last_s;
+  initial_d = last_d;
 }
 
 void Planner::generate_trajectory(int unused_pts){
@@ -53,10 +52,17 @@ void Planner::generate_trajectory(int unused_pts){
 
   vector<double> xy;
   double next_s, next_d;
+  JMT traj_s = JMT();
+  traj_s.fit(initial_s, {0, MAX_SPEED, 0}, 3.0, true);
+  // traj_s.s = {initial_s[0], MAX_SPEED, 0};
+  // traj_s.derivatives();
+  // traj_s.polyprint(traj_s.v);
 
-  for(int i = unused_pts; i < NPTS; i++){
-    // Lane keeper
-    next_s = grd_s + (i + 1) * dt * MAX_SPEED;
+  for(int i = unused_pts; i < NPTS; i++)
+  {// Lane keeper
+    double t = dt * (i + 1 - unused_pts);
+    last_s = traj_s.get_sva(t);
+    next_s = last_s[0];
     next_d = grd_d;
     xy = csys->to_cartesian(next_s, next_d);
 
@@ -65,6 +71,9 @@ void Planner::generate_trajectory(int unused_pts){
     path_x.push_back(xy[0]);
     path_y.push_back(xy[1]);
   }
+  cout << "s, v, a | ";
+  cout << last_s[0] << ", " << last_s[1] << ", " << last_s[2] << endl;
+
 }
 
 void Planner::scan_road(vector<vector<double>> const &sensor_fusion, bool is_debug){

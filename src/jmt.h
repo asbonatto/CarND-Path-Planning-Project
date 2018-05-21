@@ -13,8 +13,7 @@ using namespace std;
 class JMT{
 public:
 
-  vector<double> s;
-  double duration = 3.0; // Standard maneuver duration
+  vector<double> s, v, a;
 
   JMT();
   ~JMT();
@@ -22,12 +21,12 @@ public:
   // Polynomial helper methods
   double polyval(vector <double> p, double x);
   vector<double> polyder(vector<double> p);
+  void polyprint(vector <double> p);
 
   // Trajectory generation methods
-  vector<double> fit(vector<double> istate, vector<double> fstate, double T, bool set_jerk = false);
-  void match_lv(vector<double> istate, vector<double> leading_vehicle, bool is_debug);
-
-  double get_point(double T);
+  void fit(vector<double> istate, vector<double> fstate, double T, bool set_jerk = false);
+  void derivatives();
+  vector<double> get_sva(double T);
 
 };
 #endif

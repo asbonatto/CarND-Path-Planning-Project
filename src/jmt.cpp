@@ -14,8 +14,8 @@ using namespace std;
 JMT::~JMT() {};
 JMT::JMT(){};
 
-double JMT::get_point(double T){
-  return polyval(s, T);
+vector<double> JMT::get_sva(double T){
+  return {polyval(s, T), polyval(v, T), polyval(a, T)};
 }
 
 double JMT::polyval(vector <double> p, double x){
@@ -26,16 +26,18 @@ double JMT::polyval(vector <double> p, double x){
   return y;
 }
 
-vector<double> polyder(vector<double> p){
+vector<double> JMT::polyder(vector<double> p){
   // Returns the derivative of a polynomial
   vector<double> der;
+  double coeff;
   for (int i = 1; i < p.size(); i++){
-    der.push_back((i - 1)*p[i]);
+    coeff = p[i] * i;
+    der.push_back(coeff);
   }
   return der;
 }
 
-vector<double> JMT::fit(vector<double> istate, vector<double> fstate, double T, bool set_jerk){
+void JMT::fit(vector<double> istate, vector<double> fstate, double T, bool set_jerk){
     /*
     Returns the coefficients [a0, ... a5] of the Jerk Minimizing JMT
     connecting the initial state [s, s_dot, s_double_dot]
@@ -68,49 +70,23 @@ vector<double> JMT::fit(vector<double> istate, vector<double> fstate, double T, 
     }
 
     VectorXd alpha =a.inverse() * b;
+    s = {istate[0], istate[1], istate[2]/2, alpha[0], alpha[1], alpha[2]};
+    derivatives();
 
-    return {istate[0], istate[1], istate[2]/2, alpha[0], alpha[1], alpha[2]};
 }
 
-void JMT::match_lv(vector<double> istate, vector<double> leading_vehicle, bool is_debug){
-  /*
-  Generates a JMT JMT for matching leading vehicle speed
-  */
+void JMT::derivatives(){
+  v = polyder(s);
+  a = polyder(v);
 
-  // Calculating the s end point according to the leading vehicle kinematics
-  double SAFETY_DISTANCE = 10. ;
-  vector<double> fstate = {leading_vehicle[0], leading_vehicle[1], 0};
+}
 
-  // Loop for finding the lowest time keeping safety distance
-  bool will_collide = true;
-  int MAX_ITER = 10;
-  int iter = 0;
-
-  while(will_collide){
-    cout << "Maneuver duration, max distance : " << duration << " | ";
-
-    double sl = max(leading_vehicle[0] - SAFETY_DISTANCE, SAFETY_DISTANCE);
-    for (int i = 1; i < leading_vehicle.size(); i++){
-       sl += leading_vehicle[i] * pow(duration, i);
-    }
-    cout << sl << endl;
-
-    s = fit(istate, fstate, duration, true);
-
-    will_collide = polyval(s, duration) > sl and iter < MAX_ITER;
-    duration = duration + 1.0;
-    iter++;
+void JMT::polyprint(vector <double> p)
+{
+  cout << p[0];
+  for (int i = 1; i < p.size(); i++)
+  {
+    cout << ", " << p[i];
   }
-
-  if (is_debug or iter >= MAX_ITER){
-    cout << "JMT CONSTRAINTS : " << endl;
-    cout << istate[0] << " " << istate[1] << " " << istate[2] << " " << " | ";
-    cout << fstate[0] << " " << fstate[1] << " " << fstate[2] << " " << endl;
-
-    cout << "JMT Coeffs | " << duration << endl;
-    for (int i = 0; i < s.size(); i++){
-      cout << s[i] << ", ";
-    }
-    cout << endl;
-  }
+  cout << endl;
 }
