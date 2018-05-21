@@ -38,6 +38,7 @@ CSys::CSys() {
 
   //rx_s.set_points(map_waypoints_s, map_waypoints_x);
   //ry_s.set_points(map_waypoints_s, map_waypoints_y);
+  //n_s.set_points(map_waypoints_s, map_waypoints_normal);
 }
 
 void CSys::check(){

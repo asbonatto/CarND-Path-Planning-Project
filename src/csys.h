@@ -47,6 +47,7 @@ public:
   // The main methods for the class
 
   int get_lane(double d){return (int) (d / LANE_WIDTH);}
+  double get_lane_center(int lane) {return LANE_WIDTH*((double)lane + 0.5);}
 
   // vector<double> to_frenet(double x, double y);
   vector<double> to_cartesian(double s, double d);

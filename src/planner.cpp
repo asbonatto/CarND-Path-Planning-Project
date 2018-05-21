@@ -53,17 +53,19 @@ void Planner::generate_trajectory(int unused_pts){
   vector<double> xy;
   double next_s, next_d;
   JMT traj_s = JMT();
-  traj_s.fit(initial_s, {0, MAX_SPEED, 0}, 3.0, true);
-  // traj_s.s = {initial_s[0], MAX_SPEED, 0};
-  // traj_s.derivatives();
-  // traj_s.polyprint(traj_s.v);
+  traj_s.fit(initial_s, {0, MAX_SPEED, 0}, 2.0, true);
+  JMT traj_d = JMT();
+
+  traj_d.fit(initial_d, {csys->get_lane_center(2) , 0, 0}, 2.0, false);
 
   for(int i = unused_pts; i < NPTS; i++)
   {// Lane keeper
     double t = dt * (i + 1 - unused_pts);
     last_s = traj_s.get_sva(t);
+    last_d = traj_d.get_sva(t);
+
     next_s = last_s[0];
-    next_d = grd_d;
+    next_d = last_d[0];
     xy = csys->to_cartesian(next_s, next_d);
 
     path_s.push_back(next_s);
@@ -71,9 +73,6 @@ void Planner::generate_trajectory(int unused_pts){
     path_x.push_back(xy[0]);
     path_y.push_back(xy[1]);
   }
-  cout << "s, v, a | ";
-  cout << last_s[0] << ", " << last_s[1] << ", " << last_s[2] << endl;
-
 }
 
 void Planner::scan_road(vector<vector<double>> const &sensor_fusion, bool is_debug){
