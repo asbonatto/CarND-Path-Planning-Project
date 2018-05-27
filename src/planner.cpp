@@ -59,7 +59,7 @@ void Planner::generate_trajectory(int unused_pts){
   }
   
   traj_s.fit(vec_s, {0, lane_speeds[target_lane], 0}, T, true);
-  traj_d.fit(vec_d, {csys->get_lane_center(target_lane), 0, 0}, T, false);
+  traj_d.fit(vec_d, {csys->get_lane_center(target_lane), 0, 0}, 1.5*T, false);
 
   
   // Predict new points and blend with previous unused ones

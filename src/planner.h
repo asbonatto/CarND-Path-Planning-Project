@@ -13,7 +13,7 @@ class Planner {
 public:
 
 	// Car constraints
-	double MAX_SPEED = mph2mps(49.0);
+	double MAX_SPEED = mph2mps(45.0);
 	double MAX_ACCEL = 10; // m/s^2
 	double MAX_JERK  = 10; // m/s^3
 

@@ -27,18 +27,10 @@ private:
   vector<double> map_waypoints_x;
   vector<double> map_waypoints_y;
   vector<double> map_waypoints_s;
-  vector<double> map_waypoints_normal;
 
   // Using splines to fit the curve so we can access it`s normal/tangent vectors
-  //tk::spline rx_s;
-  //tk::spline ry_s;
-  //tk::spline dx_s;
-  //tk::spline dy_s;
-
-  int get_next_waypoint(double x, double y, double theta);
-  int get_closest_waypoint(double x, double y);
-  int get_previous_waypoint_s(double s);
-  void check();
+  tk::spline rx_s;
+  tk::spline ry_s;
 
 public:
    CSys();
