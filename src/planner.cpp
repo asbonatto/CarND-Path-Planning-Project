@@ -158,12 +158,28 @@ void Planner::update_lane_costs(){
     lane_speeds[l] = get_lane_speed(l);
     lane_costs[l] = 1 - logit(lane_speeds[l]/MAX_SPEED); // Efficiency cost
     lane_costs[l] += 0.005*pow(l - current_lane, 2); // Lateral movement cost
-    lane_costs[l] += 0.01*fabs(l - current_lane)*(1 - logit(-time_to_collision(l))); // Collision cost
+    
   }
 }
 
 int Planner::choose_lane(){
-  return std::distance(lane_costs.begin(), 
-                            std::min_element(lane_costs.begin(), lane_costs.end()));
-
+  
+  double min_cost = inf;
+  int next_lane = current_lane;
+  
+  for (int l = max(0, current_lane - 1); l < min(3, current_lane + 2); l++)
+  { /*NOTE :
+      We are introducing left-lane bias to the code when we start
+    searching from the left to the right and using strict inequality
+    for choosing the target lane
+    */
+  
+    if (lane_costs[l] < min_cost and time_to_collision(l) > 2.0*fabs(l - current_lane))
+    {
+      min_cost = lane_costs[l];
+      next_lane = l;
+    }
+  }
+  // std::distance(lane_costs.begin(), std::min_element(lane_costs.begin(), lane_costs.end()))
+  return next_lane;
 }
