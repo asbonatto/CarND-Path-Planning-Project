@@ -160,6 +160,8 @@ void Planner::update_lane_costs(){
     lane_speeds[l] = get_lane_speed(l);
     lane_costs[l] = 1 - logit(lane_speeds[l]/MAX_SPEED); // Efficiency cost
     lane_costs[l] += 0.005*pow(l - current_lane, 2); // Lateral movement cost
+    lane_costs[l] += 1*fabs(l - current_lane)*pow(vehicle_ahead[l][0], -2); // Collision prevention cost
+    lane_costs[l] += 1*fabs(l - current_lane)*pow(vehicle_behind[l][0], -2); // Collision prevention cost
     
   }
 }
