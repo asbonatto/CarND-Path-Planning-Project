@@ -13,7 +13,7 @@ class Planner {
 public:
 
 	// Car constraints
-	double MAX_SPEED = mph2mps(45.0);
+	double MAX_SPEED = mph2mps(47.5);
 	double MAX_ACCEL = 10; // m/s^2
 	double MAX_JERK  = 10; // m/s^3
 
@@ -25,6 +25,7 @@ public:
 	int current_lane;
 	double T = 1.0; // prediction horizon
 
+	// Traffic info 
 	vector<vector<double>> vehicle_ahead, vehicle_behind;
 	vector<double> lane_speeds = {MAX_SPEED, MAX_SPEED, MAX_SPEED};
 	vector<double> lane_costs = {MAX_SPEED, MAX_SPEED, MAX_SPEED};
@@ -34,14 +35,16 @@ public:
 	// Ego vehicle ground truth data
 	double grd_s, grd_d, grd_vs, grd_vd;
 
-	// State vector for storing the trajectory
+	// Trajectory data
+	vector<double> path_s, path_d, path_x, path_y;
 	vector<double> vec_s, vec_d;
+	JMT traj_s;
+  	JMT traj_d;
 
 	// Trajectory generation data
 	double dt = 20./1000.; // planner clock ...
 	int NPTS = (int) (T / dt);
-	vector<double> path_s, path_d, path_x, path_y;
-
+	
 	// Methods
 	Planner(CSys*);
 	virtual ~Planner(){};
@@ -58,7 +61,6 @@ public:
 	// Behavior planner functions
 	vector<int> get_available_lanes(int lane);
 	void generate_trajectory(int unused_pts);
-	vector<double> get_targets();
 	int choose_lane();
 
 	// Helper functions that may get dumped

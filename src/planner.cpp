@@ -37,21 +37,23 @@ void Planner::update_telemetry(double x, double y, double s, double d, double ya
     vec_s = {grd_s, grd_vs, 0};
     vec_d = {grd_d, grd_vd, 0};
     target_lane = current_lane;
+    traj_s = JMT(vec_s, MAX_SPEED, 0.8*MAX_ACCEL, 0.8*MAX_JERK);
+    traj_d = JMT(vec_d, MAX_SPEED, 0.8*MAX_ACCEL, 0.8*MAX_JERK);
   }
 }
 
 void Planner::generate_trajectory(int unused_pts){
+  
+  path_s.clear();
+  path_d.clear();
+  path_x.clear();
+  path_y.clear();
 
-  if(unused_pts > 0){
-    path_s.erase(path_s.begin(), path_s.begin() + NPTS - unused_pts);
-    path_d.erase(path_d.begin(), path_d.begin() + NPTS - unused_pts);
-    path_x.erase(path_x.begin(), path_x.begin() + NPTS - unused_pts);
-    path_y.erase(path_y.begin(), path_y.begin() + NPTS - unused_pts);
-  }
-
+  int used_pts = NPTS - unused_pts;
+  vec_s = traj_s.get_sva(dt*used_pts);
+  vec_d = traj_d.get_sva(dt*used_pts);
+  
   update_lane_costs();
-  JMT traj_s = JMT();
-  JMT traj_d = JMT();
   
   if (current_lane == target_lane)
   { // Wait for lane change event before choosing another lane
@@ -59,23 +61,23 @@ void Planner::generate_trajectory(int unused_pts){
   }
   
   traj_s.fit(vec_s, {0, lane_speeds[target_lane], 0}, T, true);
-  traj_d.fit(vec_d, {csys->get_lane_center(target_lane), 0, 0}, 1.5*T, false);
-
+  traj_d.fit(vec_d, {csys->get_lane_center(target_lane), 0, 0}, 1.6*T, false);
   
   // Predict new points and blend with previous unused ones
   vector<double> xy;
   double next_s, next_d;
   
-  for(int i = unused_pts; i < NPTS; i++)
+  for(int i = 0; i < NPTS; i++)
   {
-    double t = dt * (i + 1 - unused_pts);
+    double t = dt * (i + 1);
+    
     vec_s = traj_s.get_sva(t);
     vec_d = traj_d.get_sva(t);
 
     next_s = vec_s[0];
     next_d = vec_d[0];
     xy = csys->to_cartesian(next_s, next_d);
-
+    // cout << t << ", " << next_s << ", " << next_d << endl;
     path_s.push_back(next_s);
     path_d.push_back(next_d);
     path_x.push_back(xy[0]);

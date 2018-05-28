@@ -14,9 +14,11 @@ class JMT{
 public:
 
   vector<double> s, v, a;
+  JMT(){};
+  JMT(vector<double> p, double speed, double accel, double jerk);
+  ~JMT(){};
 
-  JMT();
-  ~JMT();
+  double MAX_SPEED, MAX_ACCEL, MAX_JERK;
 
   // Polynomial helper methods
   double polyval(vector <double> p, double x);
